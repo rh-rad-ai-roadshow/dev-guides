@@ -161,7 +161,7 @@ Now that we understand the constructs of the taxonomy's knowledge, let's go ahea
 
 ==== Open the `instructlab` taxonomy directory in Visual Studio Code
 
-You can open VSCode by following the instructions below:
+Open VSCode by running the below command. Even if you already have VSCode open, you should run this command to open the taxonomy folder (notice the `--reuse-window` flag).
 
 [.console-input]
 [source,bash,subs="+attributes,macros+"]
@@ -271,6 +271,8 @@ After running the above command you should be able to see the following output.
 knowledge/economy/finance/insurance/parasol/qna.yaml
 Taxonomy in /home/instruct/.local/share/instructlab/taxonomy is valid :)
 ----
+
+NOTE: If you see an error such as `no new line character at the end of the file`, simply place your cursor at the end of the last line of the taxonomy file and press kbd:[ENTER] to add a new line, and re-run the `ilab diff` command.
 
 If you do not see output similar to above, you may not have added in all of the Q&A file. This is important as the model will use this file to generate synthetic data in the next section.
 

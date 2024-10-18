@@ -38,9 +38,9 @@ You might choose to use prompt engineering over other techniques if you're looki
 
 There are many tools and approaches available to you as the AI application developer to interface an LLM.  We will briefly review a few of these and then make a recommendation for you to follow with the subsequent steps of this module.
 
-Before jumping into specific tools, let's review the basics of interfacing with an LLM through a chat or agentic experience.  Since LLMs can often support a wide variety of use cases and personas, it is important that the LLM receive clear, upfront guidance to define its objectives, constraints, persona, and tone.  These instructions are provided in natural language format that are specified in the "System Prompt". Once a System Prompt is defined and a chat session begins, the System Prompt cannot be changed.
+Before jumping into specific tools, let's review the basics of interfacing with an LLM through a chat or agentic experience.  Since LLMs can often support a wide variety of use cases and personas, it is important that the LLM receive clear, upfront guidance to define its objectives, constraints, persona, and tone.  These instructions are provided using natural language specified in the "System Prompt". Once a System Prompt is defined and a chat session begins, the System Prompt cannot be changed.
 
-Depending on use case, it may be necessary for the LLM to produce a more creative or a more predictable response to the user message.  Temperature is a floating point number, usually between 0 and 1, that is used to steer the model accordingly.  Lower temperature values (such as 0) are more predictable and higher values (such as 1) are more creative, although even at 0 LLMs will never product 100% repeatable responses.  Many tools simply use 0.8 as a default.
+Depending on use case, it may be necessary for the LLM to produce a more creative or a more predictable response to the user message.  Temperature is a floating point number, usually between 0 and 1, that is used to steer the model accordingly.  Lower temperature values (such as 0) are more predictable and higher values (such as 1) are more creative, although even at 0 LLMs will never produce 100% repeatable responses.  Many tools simply use 0.8 as a default.
 
 Lastly, while experimenting with LLMs, especially with inferencing servers without a GPU, it is recommended to constrain the LLM from producing overly verbose responses by setting the Max Tokens to an appropriate threshold.  This also helps coach the LLM to be more concise with its responses, which can be helpful during testing.
 
@@ -99,7 +99,7 @@ For this section we will be exercising the model with some basic prompts to gain
 
 === Open Dev UI with LangChain4j Chat
 
-Open your workspace in the Dev Spaces per the instructions in the prior section.
+Open your workspace in Dev Spaces per the instructions in the prior section.
 
 Spawn a terminal window within the IDE by clicking on the icon with three parallel bars in the upper left corner of the screen.  Choose "Terminal" and then "New Terminal" menu entry from the list.
 
@@ -397,7 +397,7 @@ If you haven't created *a new Gen AI email service* in the previous module yet, 
 sh ${PROJECT_SOURCE}/scripts/create-email-ai-service.sh
 ----
 
-Access the https://parasol-app-{user}-dev-parasol-app-{user}-dev.{openshift_cluster_ingress_domain}[Parasol web page^] to verify the Gen AI email service.
+Access the https://parasol-app-{user}-dev-parasol-app-{user}-dev.{openshift_cluster_ingress_domain}[Parasol web page^],to verify the Gen AI email service. To access the email service, click on the `Email Generate` tab on the left and use it in the following sections:
 ====
 
 ==== Generate an email for `new claim #1` to the new.claim@parasol.com
@@ -540,11 +540,9 @@ During a prior workshop activity, email response generation using LangChain4j wa
 
 image::prompt/parasol-generate-email-response-form.png[Generate Email Response Web Form]
 
-IMPORTANT: Section 5 of the Parasol AI Developer Workflow module provides steps for introducing a new email feature into the application using generative AI.  The following section builds upon this feature with new capabilities. If you have not yet completed that section, you should either do so now or use the following script to automatically incorporate those changes for modification here.
-
 The Parasol Insurance application is invoking the LLM using LangChain4j's AI Service framework.  This approach leverages Java Interfaces created by the user with annotations that define the prompt using a String.  Let's open the AI Service that was previously created for Email Response Generation:
 
-`parasol-insurance/app/src/main/java/org/parasol/ai/EmailService.java`
+`src/main/java/org/parasol/ai/EmailService.java`
 
 Now, change the current prompt to the one we created together in the previous section.
 
@@ -552,7 +550,7 @@ Now, change the current prompt to the one we created together in the previous se
 
 image::prompt/email-branch-before.png[LangChain4j Email Service Before Functionality Expansion]
 
-Replace the text in the red rectangle with the folowing revised system prompt.
+Replace the text in the red rectangle with the following revised system prompt.
 
 [.console-input]
 [source,text,subs="+attributes,macros+"]
@@ -621,13 +619,13 @@ Assuming your Quarkus environment is still running from the prior steps, the upd
 
 - Reload the Email generate page. It take 10 - 20 seconds to recompile and apply the new prompt in the Quarkus dev mode.
 - Copy and paste the new claim #1 example from the prior section into the form.
-- Click on `Submit`. 
+- Click on `Submit`.
 
 image::prompt/new-email-generate-basic.png[New Generate Email Response]
 
 Now, you'll notice that this does not look drastically different from before the enhancement.  Let's now add the Forward-To Email Address to the form.
 
-Open the `parasol-insurance/app/src/main/webui/src/app/components/EmailGenerate/EmailGenerate.tsx` typescirpt file for the Generate Email view.
+Open the `src/main/webui/src/app/components/EmailGenerate/EmailGenerate.tsx` typescript file for the Generate Email view.
 
 At the top of the source file there is a data structured called EmailResponse.  Add `address` of type `string` to the end of the list.
 
@@ -653,7 +651,7 @@ image::prompt/email_response_addresse.png[email_response_addresse]
 
 Additionally, we must add the address field to the REST Service's JSON Response.
 
-Open the `parasol-insurance/app/src/main/java/org/parasol/model/EmailResponse.java` file to `replace` the constructor with the following code.
+Open the `src/main/java/org/parasol/model/EmailResponse.java` file to `replace` the constructor with the following code.
 
 [.console-input]
 [source,java,subs="+attributes,macros+"]
@@ -663,7 +661,7 @@ public record EmailResponse(String subject, String message, String address) { }
 
 image::prompt/new-field-added-to-email-response.png[Add "address" field to EmailResponse Record]
 
-Now let's revisit the web form and test out the new AI-generated attribute:
+Now let's revisit the https://parasol-app-{user}-dev-parasol-app-{user}-dev.{openshift_cluster_ingress_domain}[web form^] and test out the new AI-generated attribute:
 
 - Reload the Email generate page. It take 10 - 20 seconds to recompile and apply the new prompt in the Quarkus dev mode.
 - Copy and paste the new claim #1 example from the prior section into the form.

@@ -61,7 +61,7 @@ Follow the next steps to create a component based on the pre-defined Software Te
 ==== Provide Information for Application
 
 * *Name*: The name of the component. Replace the *Name* with the following domain:
-ß
+
 [.console-input]
 [source,bash,subs="attributes"]
 ----

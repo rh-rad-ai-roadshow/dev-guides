@@ -73,9 +73,9 @@ The output should look similar to the following.
 [source,bash]
 ----
 ....
- --/ __ \/ / / / _ | / _ \/ //_/ / / / __/ 
- -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
---\___\_\____/_/ |_/_/|_/_/|_|\____/___/   
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
+ -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
+--\___\_\____/_/ |_/_/|_/_/|_|\____/___/
 INFO  [io.quarkus] (Quarkus Main Thread) insurance-app 1.0.0-SNAPSHOT on JVM (powered by Quarkus xx.xx.xx) started in 19.615s. Listening on: http://0.0.0.0:8080
 INFO  [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [agroal, cdi, hibernate-orm, hibernate-orm-panache, jdbc-h2, langchain4j, langchain4j-ollama, langchain4j-openai, langchain4j-websockets-next, narayana-jta, quinoa, qute, rest, rest-client, rest-client-jackson, rest-jackson, smallrye-context-propagation, vertx, websockets-next]
@@ -85,9 +85,21 @@ Tests paused
 Press [e] to edit command line args (currently ''), [r] to resume testing, [o] Toggle test output, [:] for the terminal, [h] for more options>
 ----
 
-Validate your local Parasol application against the production version by accessing the https://{user}-parasol-insurance-parasol-webui.{openshift_cluster_ingress_domain}[Parasol web page^].
+Validate your local Parasol application against the production version by accessing the https://{user}-parasol-insurance-parasol-webui.{openshift_cluster_ingress_domain}[Parasol web page^] (it may take up to a minute to come up - wait for the "Listening on..." message as shown above).
 
 image::devhub/parasol_ui_web.png[]
+
+==== Preview the changes you need to make
+
+To add the new feature, you will either create or edit the following files. Use this list as a checklist to ensure you've made all the changes. If you get errors when you try to run the app, be sure each file was changed as described in the instructions below!
+
+* `src/main/java/org/parasol/model/Email.java` - A Java record defining an incoming email from a customer
+* `src/main/java/org/parasol/model/EmailResponse.java` - A Java record defining a response (subject+message)
+* `src/main/java/org/parasol/ai/EmailService.java` - interface for interacting with the underlying LLM
+* `src/main/java/org/parasol/resources/EmailResource.java` - A REST-like web frontend interface
+* `src/main/resources/application.properties` - The Quarkus configuration where you'll define the parameters for connecting to the LLM inference service
+* `src/main/webui/src/app/components/EmailGenerate/EmailGenerate.tsx` - A React web component providing a simple interface for providing a customer email
+* `src/main/webui/src/app/routes.tsx` - A list of React routes to which you'll add the new Email generator component
 
 ==== Create Java records beans
 
@@ -137,13 +149,13 @@ import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import io.quarkiverse.langchain4j.RegisterAiService;
 
-@RegisterAiService(modelName = "parasol-email") 
+@RegisterAiService(modelName = "parasol-email")<1>
 public interface EmailService {
-    @SystemMessage(""" 
+    @SystemMessage("""<2>
       You are a helpful, respectful and honest assistant named "Parasol Assistant".
 
       You are responding to customer emails. Provide a friendly response that is written by Parasol. The response should thank them for being a customer. Include information about when parasol insurance was founded.
-      
+
       Your response must look like the following JSON:
 
       {
@@ -151,12 +163,12 @@ public interface EmailService {
         "message": [Your response, summarizing the information they gave and ask the customer for any follow-up information needed to file a claim]
       }
       """)
-    EmailResponse chat(@UserMessage String claim); 
+    EmailResponse chat(@UserMessage String claim);<3>
 }
 ----
-<1> *@RegisterAiService* annotation is pivotal for registering the AI Service, represented as a Java interface.
-<2> *@SystemMessage* annotation defines the scope and initial instructions, serving as the first message sent to the LLM. It delineates the AI service's role in the interaction.
-<3> *@UserMessage* annotation defines primary instructions dispatched to the LLM. It typically encompasses requests and the expected response format.
+<1> `@RegisterAiService` annotation is pivotal for registering the AI Service, represented as a Java interface.
+<2> `@SystemMessage` annotation defines the scope and initial instructions, serving as the first message sent to the LLM. It delineates the AI service's role in the interaction.
+<3> `@UserMessage` annotation defines primary instructions dispatched to the LLM. It typically encompasses requests and the expected response format.
 
 ==== Create Jakarta REST resource
 
@@ -207,7 +219,7 @@ quarkus.langchain4j.openai.parasol-email.timeout=600s<3>
 quarkus.langchain4j.openai.parasol-email.chat-model.model-name=parasol-instruct<4>
 quarkus.langchain4j.openai.parasol-email.base-url=http://parasol-instruct-predictor.aiworkshop.svc.cluster.local:8080/v1<5>
 ----
-<1> Specify the model provider (e.g., openai, huggingface). Note that you use the Open AI API specification when you connedt to the LLM (parasol-instruct) inference endpoint
+<1> Specify the model provider (e.g., openai, huggingface). Note that you use the Open AI API specification when you connect to the LLM (parasol-instruct) inference endpoint
 <2> Set the model temperature. Temperature is a parameter used in natural language processing models to increase or decrease the “confidence” a model has in its most likely response
 <3> Specify the timeout between question and response in the LLM
 <4> Specify the model name to connect to
@@ -313,7 +325,7 @@ This interface allows customer service representatives to copy and paste the cus
 
 ==== Add a new menu item in the navigation bar
 
-Open the `routes.tsx` file in the `src/main/webui/src/app` directory and `uncomment` the following code out in line *8* and *89 - 95* to show the new menu item. 
+Open the `routes.tsx` file in the `src/main/webui/src/app` directory and `uncomment` the following code out in line *8* and *89 - 95* to show the new menu item.
 
 [NOTE]
 ====
